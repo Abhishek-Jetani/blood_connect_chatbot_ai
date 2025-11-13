@@ -61,6 +61,13 @@
       const fileInput = document.getElementById('fileInput')
       const chips = document.getElementById('chips')
 
+      // Initialize or retrieve session ID
+      let sessionId = localStorage.getItem('chatbot_session_id')
+      if (!sessionId) {
+        sessionId = 'session_' + Math.random().toString(36).substr(2, 9)
+        localStorage.setItem('chatbot_session_id', sessionId)
+      }
+
       function appendMessage(text, cls='bot'){
         const d = document.createElement('div')
         d.className = cls + ' bubble'
@@ -89,7 +96,7 @@
         const typingBubble = appendBotTyping()
         sendBtn.disabled = true
           try{
-            const res = await fetch('./api/send/', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})})
+            const res = await fetch('./api/send/', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text, session_id: sessionId})})
             if(!res.ok){
               // try to show server-provided JSON error
               let body = null
@@ -100,6 +107,11 @@
             } else {
               const j = await res.json()
               typingBubble.textContent = j.reply.text
+              // Update session ID if new one was created
+              if (j.session_id) {
+                sessionId = j.session_id
+                localStorage.setItem('chatbot_session_id', sessionId)
+              }
             }
           }catch(err){
             typingBubble.textContent = 'Network error. '+err.message
@@ -115,7 +127,7 @@
         appendMessage(text, 'user')
         const typingBubble = appendBotTyping()
           try{
-            const res = await fetch('./api/send/', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})})
+            const res = await fetch('./api/send/', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text, session_id: sessionId})})
             if(!res.ok){
               let body = null
               try{ body = await res.json() }catch(e){ body = await res.text().catch(()=>null) }
@@ -125,6 +137,11 @@
             } else {
               const j = await res.json()
               typingBubble.textContent = j.reply.text
+              // Update session ID if new one was created
+              if (j.session_id) {
+                sessionId = j.session_id
+                localStorage.setItem('chatbot_session_id', sessionId)
+              }
             }
           }catch(err){
             typingBubble.textContent = 'Network error. '+err.message
