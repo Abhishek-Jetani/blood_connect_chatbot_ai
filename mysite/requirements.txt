@@ -1,5 +1,14 @@
+# Web Framework
 Django>=5.2
+
+# AI/ML Models (Free, Open-Source)
+transformers>=4.35.0          # Hugging Face transformers - FLAN-T5, DistilBERT
+torch>=2.0.0                  # PyTorch - Deep learning library
+sentence-transformers>=2.2.0  # Semantic search and similarity
+
+# Optional ML Libraries
 scikit-learn>=1.2
 joblib
-transformers>=4.35.0
-torch>=2.0.0
+
+# Development/Debugging
+python-dotenv>=1.0.0

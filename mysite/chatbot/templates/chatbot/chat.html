@@ -44,21 +44,17 @@
     </div>
 
     <div class="inputbar">
-      <input id="fileInput" type="file" accept="image/*,audio/*" style="display:none" />
-      <button id="attachBtn" class="btn" style="background:#fff;color:var(--accent);border:1px solid #eee">+</button>
-      <div class="input">
+      <div class="input" style="flex:1">
         <input id="textInput" class="text-input" placeholder="Type a message or use quick suggestions" />
-        <button id="micBtn" class="btn" style="background:#fff;color:var(--accent);border:1px solid #eee">🎤</button>
-        <button id="sendBtn" class="btn">Send</button>
       </div>
+      <button id="sendBtn" class="btn">Send</button>
     </div>
 
     <script>
       const messagesEl = document.getElementById('messages')
       const textInput = document.getElementById('textInput')
       const sendBtn = document.getElementById('sendBtn')
-      const attachBtn = document.getElementById('attachBtn')
-      const fileInput = document.getElementById('fileInput')
+      // attach and file inputs removed — keep text input and send button only
       const chips = document.getElementById('chips')
 
       // Initialize or retrieve session ID
@@ -148,74 +144,7 @@
           }
       })
 
-      attachBtn.addEventListener('click', ()=> fileInput.click())
-
-      fileInput.addEventListener('change', async ()=>{
-        if(!fileInput.files.length) return
-        const f = fileInput.files[0]
-        const form = new FormData()
-        form.append('file', f)
-        appendMessage('Uploading...', 'user')
-        const typingBubble = appendBotTyping()
-          try{
-            const res = await fetch('./api/upload/', {method:'POST',body:form})
-            if(!res.ok){
-              let body = null
-              try{ body = await res.json() }catch(e){ body = await res.text().catch(()=>null) }
-              if(body && typeof body === 'object' && body.error) typingBubble.textContent = 'Upload error: '+body.error
-              else if(body) typingBubble.textContent = 'Upload error: '+String(body)
-              else typingBubble.textContent = 'Upload failed: status '+res.status
-              return
-            }
-            const j = await res.json()
-            typingBubble.textContent = 'File uploaded: '+j.url
-          }catch(err){
-            typingBubble.textContent = 'Upload error. '+err.message
-          }
-      })
-
-      // Basic mic recording using MediaRecorder
-      let mediaRecorder, audioChunks=[]
-      const micBtn = document.getElementById('micBtn')
-      micBtn.addEventListener('click', async ()=>{
-        if(mediaRecorder && mediaRecorder.state === 'recording'){
-          mediaRecorder.stop()
-          micBtn.textContent = '🎤'
-          return
-        }
-        try{
-          const stream = await navigator.mediaDevices.getUserMedia({audio:true})
-          mediaRecorder = new MediaRecorder(stream)
-          audioChunks = []
-          mediaRecorder.ondataavailable = e=>audioChunks.push(e.data)
-          mediaRecorder.onstop = async ()=>{
-            const blob = new Blob(audioChunks,{type:'audio/webm'})
-            const form = new FormData()
-            form.append('file', blob, 'recording.webm')
-            appendMessage('Uploading audio...', 'user')
-            const typingBubble = appendBotTyping()
-              try{
-                const res = await fetch('./api/upload/', {method:'POST',body:form})
-                if(!res.ok){
-                  let body = null
-                  try{ body = await res.json() }catch(e){ body = await res.text().catch(()=>null) }
-                  if(body && typeof body === 'object' && body.error) typingBubble.textContent = 'Upload error: '+body.error
-                  else if(body) typingBubble.textContent = 'Upload error: '+String(body)
-                  else typingBubble.textContent = 'Upload failed: status '+res.status
-                  return
-                }
-                const j = await res.json()
-                typingBubble.textContent = 'Audio uploaded: '+j.url
-              }catch(err){
-                typingBubble.textContent = 'Upload error. '+err.message
-              }
-          }
-          mediaRecorder.start()
-          micBtn.textContent = '■'
-        }catch(err){
-          alert('Microphone access denied')
-        }
-      })
+      // File attachment and microphone functionality removed.
 
     </script>
   </body>
